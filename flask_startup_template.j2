@@ -6,4 +6,4 @@ WorkingDirectory=/home/ec2-user/flask
 ExecStart=gunicorn --bind 0.0.0.0:5000 app:app &
 Restart=always
 [Install]
-WantedBy=multi-user.target" > /etc/systemd/system/flaskapp.service
+WantedBy=multi-user.target" > /etc/systemd/system/flask.service
