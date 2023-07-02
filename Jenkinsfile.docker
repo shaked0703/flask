@@ -1,7 +1,7 @@
 pipeline {
     agent any
         environment {
-        EC2_IP = "13.48.43.230"
+        EC2_IP = "16.171.11.234"
     }
     stages {
         stage('Cleanup') {
@@ -30,7 +30,7 @@ pipeline {
                 sh 'echo "Pushing Docker image to Docker Hub..."'
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                     sh '''
-                    docker login -u shaked0703 -p Shaked0703
+                    docker login -u $DOCKER_USERNAME -p Shaked0703
                     docker push shaked0703/docflask2:latest
                     '''
                 }
@@ -46,7 +46,7 @@ pipeline {
                 sh 'echo "Pulling Docker image from Docker Hub..."'
                 sh '''
                     ssh -o StrictHostKeyChecking=no -i /var/lib/jenkins/shaked.pem ec2-user@${EC2_IP}
-                    docker run -d -p 8888:5000 shaked0703/docflask2:latest
+                    docker run -d -p 8888:5000 $DOCKER_USERNAME/docflask2:latest
                     '''
             }
         }
