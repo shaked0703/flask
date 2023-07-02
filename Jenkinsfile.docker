@@ -1,0 +1,78 @@
+pipeline {
+    agent any
+        environment {
+        EC2_IP = "13.48.43.230"
+    }
+    stages {
+        stage('Cleanup') {
+            steps {
+                sh 'echo "Performing cleanup..."'
+                sh 'rm -rf *'
+            }
+        }
+        stage('Clone') {
+            steps {
+                sh 'echo "Building..."'
+                sh 'git clone https://github.com/shaked0703/flask.git'
+                sh 'docker rmi -f shaked0703/docflask2'
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                sh 'echo "Building Docker image..."'
+                dir('flask') {
+                    sh 'docker build -t shaked0703/docflask2 .'
+                }
+            }
+        }
+        stage('Push Docker Image') {
+            steps {
+                sh 'echo "Pushing Docker image to Docker Hub..."'
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh '''
+                    docker login -u shaked0703 -p Shaked0703
+                    docker push shaked0703/docflask2:latest
+                    '''
+                }
+            }
+        }
+        stage('Check for the connection') {
+            steps {
+                sh 'ssh -o StrictHostKeyChecking=no -i /var/lib/jenkins/shaked.pem ec2-user@${EC2_IP}'
+            }
+        }
+        stage('Fetch from Docker Hub') {
+            steps {
+                sh 'echo "Pulling Docker image from Docker Hub..."'
+                sh '''
+                    ssh -o StrictHostKeyChecking=no -i /var/lib/jenkins/shaked.pem ec2-user@${EC2_IP}
+                    docker run -d -p 8888:5000 shaked0703/docflask2:latest
+                    '''
+            }
+        }
+        stage('Setting Up The Server') {
+            steps {
+                script {
+                    withCredentials([sshUserPrivateKey(credentialsId: 'aws-key-ssh', keyFileVariable: 'KEY_FILE')]) {
+                        sshagent(['aws-key-ssh']) {
+                            sh """
+                            ssh -i $KEY_FILE ec2-user@${EC2_IP} '
+                            sudo yum install docker -y
+                            sudo service docker start
+                            docker run -d -p 80:5000 --name flaskapp $DOCKER_USERNAME/myflaskapp:latest
+                            '
+                            """
+                        }
+                    }
+                }
+            }
+        }
+        // stage('Test') {
+        //     steps {
+        //         sh 'echo "Testing..."'
+        //         sh 'echo "Provisioning a new instance..."'
+        //         sh 'ansible-playbook -i /var/lib/jenkins/workspace/playbook/inventory.ini /var/lib/jenkins/workspace/playbook/deploy.yml'
+        //     }
+        // }
+    }
+}
