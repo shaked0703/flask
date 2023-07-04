@@ -1,58 +1,59 @@
-def connectToServer(String ipAddress) {
-    script {
-        withCredentials([sshUserPrivateKey(credentialsId: 'aws-key-ssh', keyFileVariable: 'KEY_FILE')]) {
-            sshagent(['aws-key-ssh']) {
-                sh """
-                ssh -o StrictHostKeyChecking=no -i $KEY_FILE ec2-user@$ipAddress '
-                sudo yum install docker -y
-                sudo systemctl restart docker
-                sudo docker run -d -p 5000:5000 shaked0703/docflask2:1.${BUILD_NUMBER}
-                '
-                """
-            }
-        }
-    }
-}
 pipeline {
     agent any
-     environment {
-        EC2_IP_TEST = "16.171.135.113"
-        EC2_IP_PROD = "16.171.2.1"
+    environment {
+        EC2_IP = "18.196.36.82"
     }
     stages {
-        stage('Clean Up') {
+        stage('Cleanup') {
             steps {
-                // Clean Up Project Files And Clone Git - To Update The Project
+                cleanWs()
                 sh 'rm -rf *'
-                sh 'git clone https://github.com/shaked0703/flask.git'
-                //Deletes Previous Docker Images
-                sh 'docker rmi -f  shaked0703/docflask2:latest'
             }
         }
-        stage('Build And Push The Image To Docker Hub') {
+        stage('Clone') {
             steps {
-                    //Creates Docker Image
-                    dir('flask'){
-                    sh 'docker build -t shaked0703/docflask2:1.${BUILD_NUMBER} -t shaked0703/docflask2:latest .'
+                sh 'git clone https://github.com/Haknin/crypto-site.git'
+            }
+        }
+        stage('Login to Docker Hub') {
+            steps {
+                withCredentials([
+                    usernamePassword(credentialsId: 'docker_login', usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD')
+                ]) {
+                    sh "docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD"
+                }
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                sh 'cd crypto-site && docker build -t haknin/crypto_docker .'
+            }
+        }
+        stage('Push to Docker Hub') {
+            steps {
+                sh 'docker push haknin/crypto_docker:latest'
+            }
+        }
+        stage('Upload to EC2') {
+            steps {
+                script {
+                    withCredentials([
+                        sshUserPrivateKey(credentialsId: 'ssh-ori109', keyFileVariable: 'ssh-ori109')
+                    ]) {
+                        sshagent(['ssh-ori109']) {
+                            sh """
+                                ssh -o StrictHostKeyChecking=no ec2-user@$EC2_IP '
+                                sudo yum install docker -y
+                                sudo apt install git
+                                git clone https://github.com/Haknin/crypto-site.git
+                                sudo systemctl restart docker
+                                cd crypto-site
+                                docker-compose up -d
+                                '
+                            """
+                        }
                     }
-                    //Pushes Docker Image To Docker Hub
-                    sh 'docker push shaked0703/docflask2:1.${BUILD_NUMBER}'
-                    sh 'docker push shaked0703/docflask2:latest'
-                    // Cleanup old Docker images
-                    sh "docker image ls --format '{{.ID}}' shaked0703/docflask2 --filter 'dangling=false' | sort -r | awk 'NR>4' | xargs -I {} docker image rm -f {}"
-            }
-        }
-        stage('Running Docker On Test Server') {
-            steps {
-                connectToServer(EC2_IP_TEST)
-                // Runs tests from the main machine on the website
-                sh 'chmod +x flask/tests.sh'
-                sh './flask/tests.sh'
-            }
-        }
-        stage('Running Docker On Prod Server') {
-            steps {
-                connectToServer(EC2_IP_PROD)
+                }
             }
         }
     }
