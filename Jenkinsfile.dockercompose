@@ -53,8 +53,8 @@ pipeline {
 
         stage('check for the connection'){
             steps {
-                sh 'ssh -o StrictHostKeyChecking=no -i /var/lib/jenkins/key.pem ec2-user@$EC2_IP_TEST'
-                sh 'ssh -o StrictHostKeyChecking=no -i /var/lib/jenkins/key.pem ec2-user@$EC2_IP_PROD'
+                sh 'ssh -o StrictHostKeyChecking=no -i /var/lib/jenkins/shaked.pem ec2-user@$EC2_IP_TEST'
+                sh 'ssh -o StrictHostKeyChecking=no -i /var/lib/jenkins/shaked.pem ec2-user@$EC2_IP_PROD'
 
             }
         }
