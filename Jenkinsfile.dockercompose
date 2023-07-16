@@ -32,7 +32,7 @@ pipeline {
                 sh 'rm -rf *'
                 sh 'git clone https://github.com/shaked0703/flask.git'
                 //Deletes Previous Docker Images
-                sh 'docker rmi -f shaked0703/flask2:latest'
+                sh 'docker rmi -f shaked0703/flask3:latest'
             }
         }
 
@@ -40,14 +40,14 @@ pipeline {
             steps {
                     //Creates Docker Image
                     dir('flask'){
-                    sh 'docker build -t shaked0703/flask2:2.${BUILD_NUMBER} -t shaked0703/flask2:latest .'
+                    sh 'docker build -t shaked0703/flask3:2.${BUILD_NUMBER} -t shaked0703/flask3:latest .'
                     }
                     //Pushes Docker Image To Docker Hub
-                    sh 'docker push shaked0703/flask2:2.${BUILD_NUMBER}'
-                    sh 'docker push shaked0703/flask2:latest'
+                    sh 'docker push shaked0703/flask3:2.${BUILD_NUMBER}'
+                    sh 'docker push shaked0703/flask3:latest'
 
                     // Cleanup old Docker images
-                    sh "docker image ls --format '{{.ID}}' shaked0703/flask2 --filter 'dangling=false' | sort -r | awk 'NR>4' | xargs -I {} docker image rm -f {}"            
+                    sh "docker image ls --format '{{.ID}}' shaked0703/flask3 --filter 'dangling=false' | sort -r | awk 'NR>4' | xargs -I {} docker image rm -f {}"            
             }
         }
 
