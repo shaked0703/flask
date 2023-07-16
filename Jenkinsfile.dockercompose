@@ -1,6 +1,6 @@
 def connectToServer(String ipAddress) {
     script {
-        withCredentials([sshUserPrivateKey(credentialsId: 'aws-key-ssh', keyFileVariable: 'KEY_FILE')]) {
+        withCredentials([sshUserPrivateKey(credentialsId: 'aws-key-ssh')]) {
             sshagent(['aws-key-ssh']) {
                 sh """ 
                 ssh -o StrictHostKeyChecking=no -i /var/lib/jenkins/shaked.pem ec2-user@$ipAddress '
