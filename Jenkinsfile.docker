@@ -16,8 +16,8 @@ def connectToServer(String ipAddress) {
 pipeline {
     agent any
      environment {
-        EC2_IP_TEST = "16.171.133.85"
-        EC2_IP_PROD = "13.48.192.33"
+        EC2_IP_TEST = "13.53.197.239"
+        EC2_IP_PROD = "16.170.244.64"
     }
     stages {
         stage('Clean Up') {
