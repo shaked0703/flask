@@ -27,17 +27,9 @@ pipeline {
                     sh "docker image ls --format '{{.ID}}' shaked0703/docflask2 --filter 'dangling=false' | sort -r | awk 'NR>4' | xargs -I {} docker image rm -f {}"
             }
         }
-        stage('Running Docker On Test Server') {
-            steps {
-                connectToServer(EC2_IP_TEST)
-                // Runs tests from the main machine on the website
-                sh 'chmod +x flask/tests.sh'
-                sh './flask/tests.sh'
-            }
-        }
         stage('Running Docker On Prod Server') {
             steps {
-                connectToServer(EC2_IP_PROD)
+                kubectl apply -f deployment.yaml
             }
         }
     }
