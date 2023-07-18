@@ -1,33 +1,28 @@
 pipeline {
-	agent any
-	stages {
-		stage('Clean Up') {
-			steps {
-				// Clean Up Project Files And Clone Git - To Update The Project
-				sh 'rm -rf *'
-				sh 'git clone https://github.com/shaked0703/flask.git'
-				// Deletes Previous Docker Images
-				sh 'docker rmi -f shaked0703/docflask2:latest'
-			}
-		}
-		stage('Build And Push The Image To Docker Hub') {
-			steps {
-				// Creates Docker Image
-				dir('flask') {
-					sh "docker build -t shaked0703/docflask2:1.${BUILD_NUMBER} -t shaked0703/docflask2:latest ."
-				}
-				// Pushes Docker Image To Docker Hub
-				sh "docker push shaked0703/docflask2:1.${BUILD_NUMBER}"
-				sh 'docker push shaked0703/docflask2:latest'
-				// Cleanup old Docker images
-				sh "docker image ls --format '{{.ID}}' shaked0703/docflask2 --filter 'dangling=false' | sort -r | awk 'NR>4' | xargs -I {} docker image rm -f {}"
-			}
-		}
-		stage('Running Docker On Prod claster') {
-			steps {
-				cd /home/ec2-user/flask
-				sh 'kubectl apply -f deployment.yaml'
-			}
-		}
-	}
+    agent any
+    stages {
+        stage('Clean Up') {
+            steps {
+                sh 'rm -rf *' // Clean up project files
+                sh 'git clone https://github.com/shaked0703/flask.git' // Clone Git repository to update the project
+                sh 'docker rmi -f shaked0703/docflask2:latest' // Delete previous Docker images
+            }
+        }
+        stage('Build And Push The Image To Docker Hub') {
+            steps {
+                dir('flask') {
+                    sh "docker build -t shaked0703/docflask2:1.${BUILD_NUMBER} -t shaked0703/docflask2:latest ." // Create Docker image
+                }
+                sh "docker push shaked0703/docflask2:1.${BUILD_NUMBER}" // Push Docker image to Docker Hub
+                sh 'docker push shaked0703/docflask2:latest'
+                sh "docker image ls --format '{{.ID}}' shaked0703/docflask2 --filter 'dangling=false' | sort -r | awk 'NR>4' | xargs -I {} docker image rm -f {}" // Cleanup old Docker images
+            }
+        }
+        stage('Running Docker On Prod Cluster') {
+            steps {
+                sh 'cd /home/ec2-user/flask' // Change directory to /home/ec2-user/flask
+                sh 'kubectl apply -f deployment.yaml' // Run Docker on the production cluster
+            }
+        }
+    }
 }
