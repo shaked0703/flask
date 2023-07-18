@@ -23,7 +23,7 @@ pipeline {
 				sh "docker image ls --format '{{.ID}}' shaked0703/docflask2 --filter 'dangling=false' | sort -r | awk 'NR>4' | xargs -I {} docker image rm -f {}"
 			}
 		}
-		stage('Running Docker On Prod Server') {
+		stage('Running Docker On Prod claster') {
 			steps {
 				sh 'kubectl apply -f deployment.yaml'
 			}
