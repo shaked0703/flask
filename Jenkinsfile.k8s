@@ -25,6 +25,7 @@ pipeline {
 		}
 		stage('Running Docker On Prod claster') {
 			steps {
+				cd /home/ec2-user/flask
 				sh 'kubectl apply -f deployment.yaml'
 			}
 		}
