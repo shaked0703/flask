@@ -20,7 +20,7 @@ pipeline {
         }
         stage('Running Docker On Prod Cluster') {
             steps {
-                sh 'cd /var/lib/jenkins/workspace/k8s/flask/flask' // Change directory to /home/ec2-user/flask
+                sh 'cd /var/lib/jenkins/workspace/k8s/flask' // Change directory to /home/ec2-user/flask
                 sh 'ls'
                 sh 'kubectl apply -f deployment.yml' // Run Docker on the production cluster
             }
