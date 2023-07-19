@@ -20,10 +20,7 @@ pipeline {
         }
         stage('Running Docker On test Cluster') {
             steps {
-                sh """
-                kubectl set image deployment/flask-app-deployment flask-app-container=shaked0703/docflask2:1.${BUILD_NUMBER}
-                '
-                """
+                sh "kubectl set image deployment/flask-app-deployment flask-app-container=shaked0703/docflask2:1.${BUILD_NUMBER}"
             }
         }
     }
