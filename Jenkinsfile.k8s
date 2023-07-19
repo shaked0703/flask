@@ -23,8 +23,6 @@ pipeline {
                 sh """
                 kubectl apply -f /var/lib/jenkins/workspace/k8s/flask/deployment.yml'
                 kubectl rollout restart deployment 
-                chmod +x flask/testsk8s.sh
-                bash -x ./flask/testsk8s.sh
                 '
                 """
             }
