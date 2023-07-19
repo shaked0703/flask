@@ -11,7 +11,7 @@ spec:
     - protocol: TCP
       port: 5000
       targetPort: 5000
-      nodePort: 80
+      nodePort: 30300
 ---
 apiVersion: apps/v1
 kind: Deployment
