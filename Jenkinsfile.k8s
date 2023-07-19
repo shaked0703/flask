@@ -18,9 +18,16 @@ pipeline {
                 sh "docker image ls --format '{{.ID}}' shaked0703/docflask2 --filter 'dangling=false' | sort -r | awk 'NR>4' | xargs -I {} docker image rm -f {}" // Cleanup old Docker images
             }
         }
+        stage('Running Docker On test Cluster') {
+            steps {
+                sh 'kubectl apply -f /var/lib/jenkins/workspace/k8s/flask/deployment.yml'
+                sh 'chmod +x flask/tests.sh'
+                sh './flask/tests.sh'
+            }
+        }
         stage('Running Docker On Prod Cluster') {
             steps {
-                sh 'kubectl apply -f /var/lib/jenkins/workspace/k8s/flask/deployment.yml' // Run Docker on the production cluster
+                sh 'kubectl apply -f /var/lib/jenkins/workspace/k8s/flask/deployment.yml'
             }
         }
     }
