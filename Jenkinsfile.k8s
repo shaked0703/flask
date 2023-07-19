@@ -21,8 +21,7 @@ pipeline {
         stage('Running Docker On test Cluster') {
             steps {
                 sh """
-                kubectl apply -f /var/lib/jenkins/workspace/k8s/flask/deployment.yml'
-                kubectl rollout restart deployment 
+                kubectl set image deployment/flask-app-deployment flask-app-container=shaked0703/docflask2:1.${BUILD_NUMBER}
                 '
                 """
             }
