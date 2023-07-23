@@ -20,8 +20,10 @@ pipeline {
         }
         stage('check if deployment exists') {
             steps {
-                sh "chmod +x deploy_script.sh"
-                sh "./deploy_script.sh"
+                dir('flask') {
+                    sh "chmod +x deploy_script.sh"
+                    sh "./deploy_script.sh"
+                }
             }
         }
         stage('Running Docker On Prod Cluster') {
