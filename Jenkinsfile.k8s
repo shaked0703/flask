@@ -15,6 +15,7 @@ pipeline {
                 }
                 sh "docker push shaked0703/docflask2:1.${BUILD_NUMBER}" // Push Docker image to Docker Hub
                 sh 'docker push shaked0703/docflask2:latest'
+                sh "docker image ls --format '{{.ID}}' shaked0703/docflask2 --filter 'dangling=false' | sort -r | awk 'NR>4' | xargs -I {} docker image rm -f {}" // Cleanup old Docker images
             }
         }
         stage('Running Docker On Prod Cluster') {
