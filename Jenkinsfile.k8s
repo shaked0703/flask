@@ -18,6 +18,12 @@ pipeline {
                 sh "docker image ls --format '{{.ID}}' shaked0703/docflask2 --filter 'dangling=false' | sort -r | awk 'NR>4' | xargs -I {} docker image rm -f {}" // Cleanup old Docker images
             }
         }
+        stage('check if deployment exists') {
+            steps {
+                sh "chmod +x deploy_script.sh"
+                sh "./deploy_script.sh"
+            }
+        }
         stage('Running Docker On Prod Cluster') {
             steps {
                 sh "kubectl set image deployment/flask-app-deployment flask-app-container=shaked0703/docflask2:1.${BUILD_NUMBER}"
