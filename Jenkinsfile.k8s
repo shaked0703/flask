@@ -24,8 +24,6 @@ pipeline {
                 dir('flask') {
                     sh "chmod +x deploy_script.sh"
                     sh "./deploy_script.sh"
-                    sh "chmod +x testk8s.sh"
-                    sh "./testk8s.sh"
                 }
             }
         }
@@ -35,8 +33,8 @@ pipeline {
                 dir('flask') {
                     sh "chmod +x deploy_script.sh"
                     sh "./deploy_script.sh"
-                    sh "kubectl set image deployment/flask-app-deployment flask-app-container=shaked0703/docflask2:1.${BUILD_NUMBER}"
                 }
+                sh "kubectl set image deployment/flask-app-deployment flask-app-container=shaked0703/docflask2:1.${BUILD_NUMBER}"
             }
         }
     }
