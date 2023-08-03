@@ -27,26 +27,6 @@ pipeline {
                 }
             }
         }
-        stage('Ask for Deployment Confirmation') {
-            steps {
-                script {
-                    def user_input = input(
-                        id: 'deploy_confirmation',
-                        message: 'Do you want to continue to the deploy stage?',
-                        parameters: [
-                            [$class: 'BooleanParameterDefinition', name: 'CONTINUE_DEPLOY', defaultValue: false, description: 'Check to continue the deployment.']
-                        ]
-                    )
-                    if (user_input.CONTINUE_DEPLOY) {
-                        echo 'Continuing to the deploy stage.'
-                    } else {
-                        echo 'Deployment stage skipped.'
-                        currentBuild.result = 'SUCCESS'
-                        error('Deployment stage skipped.')
-                    }
-                }
-            }
-        }
         stage('Running Docker On Prod Cluster') {
             steps {
                 sh "kubectl config use-context rancher-desktop"
