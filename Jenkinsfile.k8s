@@ -20,10 +20,12 @@ pipeline {
         }
         stage('Running Docker On Test Cluster') {
             steps {
-                sh "kubectl config use-context  rancher-desktop"
+                sh "kubectl config use-context rancher-desktop"
                 dir('flask') {
                     sh "chmod +x deploy_script.sh"
                     sh "./deploy_script.sh"
+                    sh "sleep 30"
+                    sh "curl -s 192.168.59.1:30300"
                 }
             }
         }
