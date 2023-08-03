@@ -1,17 +1,16 @@
-# nginc=deployment.ym
+# deployment.yaml
 apiVersion: v1
 kind: Service
 metadata:
   name: flask-app-service
 spec:
-  type: NodePort
+  type: LoadBalancer  # Change the type to LoadBalancer
   selector:
     app: flask-app
   ports:
     - protocol: TCP
-      port: 5000
-      targetPort: 5000
-      nodePort: 30300
+      port: 80         # Port exposed by the Load Balancer (http default)
+      targetPort: 5000 # Port your Flask app is listening on
 ---
 apiVersion: apps/v1
 kind: Deployment
