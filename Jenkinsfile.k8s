@@ -20,7 +20,7 @@ pipeline {
         }
         stage('Running Docker On Test Cluster') {
             steps {
-                sh "kubectl config use-context gke_wide-link-393311_us-central1_autopilot-cluster-1"
+                sh "kubectl config use-context rancher-desktop"
                 dir('flask') {
                     sh "chmod +x deploy_script.sh"
                     sh "./deploy_script.sh"
@@ -29,7 +29,7 @@ pipeline {
         }
         stage('Running Docker On Prod Cluster') {
             steps {
-                sh "kubectl config use-context rancher-desktop"
+                sh "kubectl config use-context gke_wide-link-393311_us-central1_autopilot-cluster-1"
                 dir('flask') {
                     sh "chmod +x deploy_script.sh"
                     sh "./deploy_script.sh"
