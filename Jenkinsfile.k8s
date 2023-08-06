@@ -18,18 +18,19 @@ pipeline {
                 sh "docker image ls --format '{{.ID}}' shaked0703/docflask2 --filter 'dangling=false' | sort -r | awk 'NR>4' | xargs -I {} docker image rm -f {}" // Cleanup old Docker images
             }
         }
-        stage('Running Docker On Test Cluster') {
+        stage('Running Docker On Prod Cluster 1') {
             steps {
-                sh "kubectl config use-context gke_wide-link-393311_us-central1_autopilot-cluster-2"
+                sh "kubectl config use-context gke_wide-link-393311_us-central1_autopilot-cluster-1"
                 dir('flask') {
                     sh "chmod +x deploy_script.sh"
                     sh "./deploy_script.sh"
                 }
+                sh "kubectl set image deployment/flask-app-deployment flask-app-container=shaked0703/docflask2:1.${BUILD_NUMBER}"
             }
         }
-        stage('Running Docker On Prod Cluster') {
+        stage('Running Docker On Prod Cluster 2') {
             steps {
-                sh "kubectl config use-context gke_wide-link-393311_us-central1_autopilot-cluster-1"
+                sh "kubectl config use-context gke_wide-link-393311_us-central1_autopilot-cluster-2"
                 dir('flask') {
                     sh "chmod +x deploy_script.sh"
                     sh "./deploy_script.sh"
