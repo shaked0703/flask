@@ -40,7 +40,7 @@ pipeline {
                             [$class: 'BooleanParameterDefinition', name: 'CONTINUE_DEPLOY', defaultValue: false, description: 'Check to continue the deployment.']
                         ]
                     )
-                    if (user_input.CONTINUE_DEPLOY) {
+                    if (user_input) {
                         echo 'Continuing to the deploy stage.'
                     } else {
                         echo 'Deployment stage skipped.'
