@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
         - name: flask-app-container
-          image: shaked0703/docflask2:v1
+          image: shaked0703/docflask2:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
