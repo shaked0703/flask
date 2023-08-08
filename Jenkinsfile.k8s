@@ -25,7 +25,7 @@ pipeline {
                     sh "chmod +x deploy_script.sh"
                     sh "./deploy_script.sh"
                     sh "sleep 30"
-                    sh "curl -s 107.178.210.254:80"
+                    sh "curl -s 34.173.87.25:80 "
                 }
                 sh "kubectl set image deployment/flask-app-deployment flask-app-container=shaked0703/docflask2:1.${BUILD_NUMBER}"
             }
