@@ -32,10 +32,10 @@ pipeline {
             steps {
                 // Clean Up Project Files And Clone Git - To Update The Project
                 sh 'rm -rf *'
-                sh 'git clone '
+                sh 'git clone https://github.com/shaked0703/flask.git'
                 // Clean Up The GCP Bucket
-                sh 'chmod +x DevOps-Crypto/scripts/bucket-clean.sh'
-                sh './DevOps-Crypto/scripts/bucket-clean.sh'
+                sh 'chmod +x flask/scripts/bucket-clean.sh'
+                sh './flask/scripts/bucket-clean.sh'
             }
         }
         stage('Build And Push The Image To Docker Hub, Package And Upload Helm To GCP Bucket') {
