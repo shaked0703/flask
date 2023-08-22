@@ -1,0 +1,93 @@
+def deployKubernetesResources() {
+    dir('DevOps-Crypto') {
+        sh 'helm repo update'
+        // Checks the status of the helm repo to see if its installed or not
+        sh 'chmod +x scripts/helm-status.sh'
+        sh 'bash scripts/helm-status.sh'
+        // Checks everything is up before moving on
+        sh 'chmod +x scripts/Gcloud-status.sh'
+        sh 'bash scripts/Gcloud-status.sh'
+    }
+}
+def deleteKubernetesResources() {
+        // Removes all yaml files to make sure the cluster is empty
+        sh "helm uninstall crypto-helm"
+        // Resize the GCP cluster to 0 nodes
+        sh 'gcloud container clusters resize k8s-test --size=0 --zone=us-central1-c --quiet'
+}
+def runKubernetesTests() {
+    // Gets the test cluster ip and runs test
+    sh 'chmod +x DevOps-Crypto/scripts/k8s-tests.sh'
+    sh 'bash DevOps-Crypto/scripts/k8s-tests.sh'
+}
+def getClusterIP() {
+    // Gets the prod cluster ip and showes it at the end of the pipeline
+    sh 'chmod +x DevOps-Crypto/scripts/Load-Balancer-IP.sh'
+    sh 'bash DevOps-Crypto/scripts/Load-Balancer-IP.sh'
+}
+pipeline {
+    agent any
+    stages {
+        stage('Clonnig Git Repo And Cleaning Workspace And GCP Bucket') {
+            steps {
+                // Clean Up Project Files And Clone Git - To Update The Project
+                sh 'rm -rf *'
+                sh 'git clone https://github.com/Roy-Latin/DevOps-Crypto.git'
+                // Clean Up The GCP Bucket
+                sh 'chmod +x DevOps-Crypto/scripts/bucket-clean.sh'
+                sh './DevOps-Crypto/scripts/bucket-clean.sh'
+            }
+        }
+        stage('Build And Push The Image To Docker Hub, Package And Upload Helm To GCP Bucket') {
+            steps {
+                    // Creates Docker Image
+                    dir('DevOps-Crypto'){
+                    sh 'docker build -t roylatin/devops-crypto:5.${BUILD_NUMBER} -t roylatin/devops-crypto:latest crypto-app/'
+                    }
+                    // Pushes Docker Image To Docker Hub - creates a image with a build number and latest
+                    sh 'docker push roylatin/devops-crypto:5.${BUILD_NUMBER}'
+                    sh 'docker push roylatin/devops-crypto:latest'
+                    // Cleanup Docker images
+                    sh 'docker rmi roylatin/devops-crypto:5.${BUILD_NUMBER} roylatin/devops-crypto:latest'
+                    // Mange Helm Zip File Version, Packages It And Upload To GCP And Cleans The File From VM
+                    sh "chmod +x DevOps-Crypto/scripts/helm-versions.sh"
+                    sh "./DevOps-Crypto/scripts/helm-versions.sh"
+                    sh "helm package DevOps-Crypto/my-flask-app"
+                    sh "gsutil cp my-flask-app-0.1.${BUILD_NUMBER}.tgz gs://helm-crypto-k8s/charts/"
+                    sh "rm my-flask-app-0.1.${BUILD_NUMBER}.tgz"
+            }
+        }
+        stage('Running K8S On GCloud Test Cluster') {
+            steps {
+                // Switches to the test cluster
+                sh 'gcloud container clusters get-credentials k8s-test --project onyx-seeker-393207 --region us-central1-c'
+                // Resize the cluster to 1 node - startup
+                sh 'gcloud container clusters resize k8s-test --size=1 --zone=us-central1-c --quiet'
+                script {
+                    // Starts the cluster
+                    deployKubernetesResources()
+                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        runKubernetesTests()
+                    }
+                }
+            }
+        }
+        stage('Shutting Off GCloud Test Cluster') {
+            steps {
+                // Turns off the cluster
+                sh 'gcloud container clusters get-credentials k8s-test --project onyx-seeker-393207 --region us-central1-c'
+                deleteKubernetesResources()
+            }
+        }
+        stage('Running K8S On GCloud Prod Cluster') {
+            steps {
+                // Switch to the prod cluster
+                sh 'gcloud container clusters get-credentials k8s-deploy --project onyx-seeker-393207 --region us-central1-c'
+                // Resize the cluster to 1 node - startup
+                sh 'gcloud container clusters resize k8s-deploy --size=1 --zone=us-central1-c --quiet'
+                deployKubernetesResources()
+                getClusterIP()
+            }
+        }
+    }
+}
