@@ -41,7 +41,7 @@ pipeline {
         stage('Build And Push The Image To Docker Hub, Package And Upload Helm To GCP Bucket') {
             steps {
                     // Creates Docker Image
-                    dir('DevOps-Crypto'){
+                    dir('flask'){
                     sh 'docker build -t shaked0703/flask2:5.${BUILD_NUMBER} -t shaked0703/flask2:latest flask/'
                     }
                     // Pushes Docker Image To Docker Hub - creates a image with a build number and latest
