@@ -9,12 +9,6 @@ def deployKubernetesResources() {
         sh 'bash scripts/Gcloud-status.sh'
     }
 }
-def deleteKubernetesResources() {
-        // Removes all yaml files to make sure the cluster is empty
-        sh "helm uninstall crypto-helm"
-        // Resize the GCP cluster to 0 nodes
-        sh 'gcloud container clusters resize k8s-test --size=0 --zone=us-central1-c --quiet'
-}
 def runKubernetesTests() {
     // Gets the test cluster ip and runs test
     sh 'chmod +x DevOps-Crypto/scripts/k8s-tests.sh'
@@ -70,19 +64,10 @@ pipeline {
                 }
             }
         }
-        stage('Shutting Off GCloud Test Cluster') {
-            steps {
-                // Turns off the cluster
-                sh 'gcloud container clusters get-credentials k8s-test --project onyx-seeker-393207 --region us-central1-c'
-                deleteKubernetesResources()
-            }
-        }
         stage('Running K8S On GCloud Prod Cluster') {
             steps {
                 // Switch to the prod cluster
-                sh 'gcloud container clusters get-credentials k8s-deploy --project onyx-seeker-393207 --region us-central1-c'
-                // Resize the cluster to 1 node - startup
-                sh 'gcloud container clusters resize k8s-deploy --size=1 --zone=us-central1-c --quiet'
+                sh 'kubectl config use-context gke_wide-link-393311_us-central1_autopilot-cluster-2'
                 deployKubernetesResources()
                 getClusterIP()
             }
