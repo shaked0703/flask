@@ -1,11 +1,11 @@
 #!/bin/bash
 
-command_output=$(helm status flask-helm 2>&1)
+command_output=$(helm status bucket-shaked 2>&1)
 
 expected_error="Error: release: not found"
 
 if [ "$command_output" = "$expected_error" ]; then
-    helm install flask-helm flask-app/
+    helm install bucket-shaked flask-app/
 else
-    helm upgrade --recreate-pods flask-helm flask-app/
+    helm upgrade --recreate-pods bucket-shaked flask-app/
 fi
