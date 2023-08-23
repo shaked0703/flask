@@ -60,9 +60,7 @@ pipeline {
         stage('Running K8S On GCloud Test Cluster') {
             steps {
                 // Switches to the test cluster
-                sh 'gcloud container clusters get-credentials k8s-test --project onyx-seeker-393207 --region us-central1-c'
-                // Resize the cluster to 1 node - startup
-                sh 'gcloud container clusters resize k8s-test --size=1 --zone=us-central1-c --quiet'
+                sh 'kubectl config use-context gke_wide-link-393311_us-central1_autopilot-cluster-1'
                 script {
                     // Starts the cluster
                     deployKubernetesResources()
