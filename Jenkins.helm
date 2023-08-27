@@ -46,9 +46,12 @@ pipeline {
                     // Mange Helm Zip File Version, Packages It And Upload To GCP And Cleans The File From VM
                     sh "chmod +x flask/scripts/helm-versions.sh"
                     sh "./flask/scripts/helm-versions.sh"
-                    sh "helm package flask/flask-app"
+                    dir('flask/flask-app'){
+                    sh "helm package ."
+                    sh "helm repo index ."
                     sh "gsutil cp flask-app-0.1.${BUILD_NUMBER}.tgz gs://shaked/"
-                    sh "rm flask-app-0.1.${BUILD_NUMBER}.tgz"
+                    sh "gsutil cp index.yaml gs://shaked/" 
+                    }
             }
         }
         stage('Running K8S On GCloud Test Cluster') {
