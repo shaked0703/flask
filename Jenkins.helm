@@ -11,8 +11,8 @@ def deployKubernetesResources() {
 }
 def runKubernetesTests() {
     // Gets the test cluster ip and runs test
-    sh 'chmod +x DevOps-Crypto/scripts/k8s-tests.sh'
-    sh 'bash DevOps-Crypto/scripts/k8s-tests.sh'
+    sh 'chmod +x flask/scripts/k8s-tests.sh'
+    sh 'bash flask/scripts/k8s-tests.sh'
 }
 def getClusterIP() {
     // Gets the prod cluster ip and showes it at the end of the pipeline
