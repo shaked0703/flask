@@ -16,8 +16,8 @@ def runKubernetesTests() {
 }
 def getClusterIP() {
     // Gets the prod cluster ip and showes it at the end of the pipeline
-    sh 'chmod +x DevOps-Crypto/scripts/Load-Balancer-IP.sh'
-    sh 'bash DevOps-Crypto/scripts/Load-Balancer-IP.sh'
+    sh 'chmod +x flask/scripts/Load-Balancer-IP.sh'
+    sh 'bash flask/scripts/Load-Balancer-IP.sh'
 }
 pipeline {
     agent any
