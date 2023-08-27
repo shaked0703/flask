@@ -36,13 +36,13 @@ pipeline {
             steps {
                     // Creates Docker Image
                     dir('flask'){
-                    sh 'docker build -t shaked0703/flask2:5.${BUILD_NUMBER} -t shaked0703/flask2:latest .'
+                    sh 'docker build -t shaked0703/docflask2:5.${BUILD_NUMBER} -t shaked0703/docflask2:latest .'
                     }
                     // Pushes Docker Image To Docker Hub - creates a image with a build number and latest
-                    sh 'docker push shaked0703/flask2:5.${BUILD_NUMBER}'
-                    sh 'docker push shaked0703/flask2:latest'
+                    sh 'docker push shaked0703/docflask2:5.${BUILD_NUMBER}'
+                    sh 'docker push shaked0703/docflask2:latest'
                     // Cleanup Docker images
-                    sh 'docker rmi shaked0703/flask2:5.${BUILD_NUMBER} shaked0703/flask2:latest'
+                    sh 'docker rmi shaked0703/docflask2:5.${BUILD_NUMBER} shaked0703/docflask2:latest'
                     // Mange Helm Zip File Version, Packages It And Upload To GCP And Cleans The File From VM
                     sh "chmod +x flask/scripts/helm-versions.sh"
                     sh "./flask/scripts/helm-versions.sh"
