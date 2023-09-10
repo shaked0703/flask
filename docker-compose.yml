@@ -1,26 +1,16 @@
 version: '3'
 services:
   web:
-    image: shaked0703/flask2:latest
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: haknin/crypto_docker
     ports:
-      - "5000:5000"
+      - '5000:5000'
     depends_on:
       - db
-    restart: always
   db:
-    image: mysql:8
-    command: --default-authentication-plugin=mysql_native_password
-    restart: always
+    image: mysql:5.7
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: flask2
-    ports:
-      - "3306:3306"
+      - MYSQL_ROOT_PASSWORD=secret
     volumes:
-      - db-data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - db_data:/var/lib/mysql
 volumes:
-  db-data:   
+  db_data:
