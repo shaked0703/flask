@@ -16,7 +16,7 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: flask3
+      MYSQL_DATABASE: flask2
     ports:
       - "3306:3306"
     volumes:
