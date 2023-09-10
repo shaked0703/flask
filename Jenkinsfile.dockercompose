@@ -5,12 +5,17 @@ def connectToServer(String ipAddress) {
                 sh """ 
                 ssh -o StrictHostKeyChecking=no -i $KEY_FILE ec2-user@$ipAddress '
                 sudo yum install docker -y
+                sudo yum install git -y
+                cd flask
+                sudo docker-compose down
+                sudo rm -fr flask                                                
+                git clone https://github.com/shaked0703/flask.git
+                sudo docker pull shaked0703/docflask2:latest
                 sudo systemctl restart docker
-                sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-\$(uname -s)-\$(uname -m)" -o /usr/local/bin/docker-compose
-                sudo chmod +x /usr/local/bin/docker-compose
-                sudo yum install python3-pip -y
-                pip install mysql-connector-python
-                sudo docker-compose -f /home/ec2-user/flask/docker-compose.yml up --build -d
+                cd /home/ec2-user/flask
+                sudo curl -L https://github.com/docker/compose/releases/download/1.22.0/docker-compose-\$(uname -s)-\$(uname -m) -o /usr/local/bin/docker-compose
+                cd /home/ec2-user/flask
+                sudo docker-compose up -d
                 '
                 """
             }
